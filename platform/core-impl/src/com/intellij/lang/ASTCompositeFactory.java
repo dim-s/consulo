@@ -28,5 +28,5 @@ public interface ASTCompositeFactory extends Predicate<IElementType> {
   ElementTypeEntryExtensionCollector<ASTCompositeFactory> EP = ElementTypeEntryExtensionCollector.create("com.intellij.lang.ast.compositeFactory");
 
   @NotNull
-  CompositeElement createComposite(final IElementType type);
+  CompositeElement createComposite(final IElementType type, LanguageVersion<?> languageVersion);
 }

@@ -49,8 +49,8 @@ import java.util.List;
 public class LazyParseablePsiElement extends LazyParseableElement implements PsiElement, NavigationItem {
   private static final Logger LOG = Logger.getInstance("#com.intellij.psi.impl.source.tree.LazyParseablePsiElement");
 
-  public LazyParseablePsiElement(@NotNull IElementType type, CharSequence buffer) {
-    super(type, buffer);
+  public LazyParseablePsiElement(@NotNull IElementType type, LanguageVersion languageVersion, CharSequence buffer) {
+    super(type, languageVersion, buffer);
     setPsi(this);
   }
 

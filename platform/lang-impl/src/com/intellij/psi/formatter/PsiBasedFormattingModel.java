@@ -20,13 +20,14 @@ import com.intellij.formatting.Block;
 import com.intellij.formatting.FormattingDocumentModel;
 import com.intellij.formatting.FormattingModel;
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.LanguageVersion;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.TokenType;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.impl.source.SourceTreeToPsiMap;
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil;
 import org.jetbrains.annotations.NotNull;
@@ -40,10 +41,8 @@ public class PsiBasedFormattingModel implements FormattingModel {
   private final FormattingDocumentModelImpl myDocumentModel;
   @NotNull private final Block myRootBlock;
   protected boolean myCanModifyAllWhiteSpaces = false;
-  
-  public PsiBasedFormattingModel(final PsiFile file,
-                                 @NotNull final Block rootBlock,
-                                 final FormattingDocumentModelImpl documentModel) {
+
+  public PsiBasedFormattingModel(final PsiFile file, @NotNull final Block rootBlock, final FormattingDocumentModelImpl documentModel) {
     myASTNode = SourceTreeToPsiMap.psiElementToTree(file);
     myDocumentModel = documentModel;
     myRootBlock = rootBlock;
@@ -52,13 +51,14 @@ public class PsiBasedFormattingModel implements FormattingModel {
 
   @Override
   public TextRange replaceWhiteSpace(TextRange textRange, String whiteSpace) {
-    String whiteSpaceToUse
-      = myDocumentModel.adjustWhiteSpaceIfNecessary(whiteSpace, textRange.getStartOffset(), textRange.getEndOffset(), true).toString();
+    String whiteSpaceToUse =
+      myDocumentModel.adjustWhiteSpaceIfNecessary(whiteSpace, textRange.getStartOffset(), textRange.getEndOffset(), true).toString();
     final String wsReplaced = replaceWithPSI(textRange, whiteSpaceToUse);
-    
-    if (wsReplaced != null){
+
+    if (wsReplaced != null) {
       return new TextRange(textRange.getStartOffset(), textRange.getStartOffset() + wsReplaced.length());
-    } else {
+    }
+    else {
       return textRange;
     }
   }
@@ -79,10 +79,12 @@ public class PsiBasedFormattingModel implements FormattingModel {
     ASTNode leafElement = findElementAt(offset);
 
     if (leafElement != null) {
-      if (leafElement.getPsi() instanceof PsiFile) {
+      PsiElement psi = leafElement.getPsi();
+      if (psi instanceof PsiFile) {
         return null;
-      } else {
-        if (!leafElement.getPsi().isValid()) {
+      }
+      else {
+        if (!psi.isValid()) {
           String message = "Invalid element found in '\n" +
                            myASTNode.getText() +
                            "\n' at " +
@@ -91,23 +93,28 @@ public class PsiBasedFormattingModel implements FormattingModel {
                            myASTNode.getText().substring(offset, Math.min(offset + 10, myASTNode.getTextLength()));
           LOG.error(message);
         }
-        return replaceWithPsiInLeaf(textRange, whiteSpace, leafElement);
+        return replaceWithPsiInLeaf(textRange, whiteSpace, leafElement, psi.getLanguageVersion());
       }
-    } else if (textRange.getEndOffset() == myASTNode.getTextLength()){
+    }
+    else if (textRange.getEndOffset() == myASTNode.getTextLength()) {
       FormatterUtil.replaceLastWhiteSpace(myASTNode, whiteSpace, textRange);
       return whiteSpace;
-    } else {
+    }
+    else {
       return null;
     }
   }
 
   @Nullable
-  protected String replaceWithPsiInLeaf(final TextRange textRange, String whiteSpace, ASTNode leafElement) {
+  protected String replaceWithPsiInLeaf(final TextRange textRange,
+                                        String whiteSpace,
+                                        ASTNode leafElement,
+                                        final LanguageVersion<?> languageVersion) {
     if (!myCanModifyAllWhiteSpaces) {
       if (leafElement.getElementType() == TokenType.WHITE_SPACE) return null;
     }
 
-    FormatterUtil.replaceWhiteSpace(whiteSpace, leafElement, TokenType.WHITE_SPACE, textRange);
+    FormatterUtil.replaceWhiteSpace(whiteSpace, leafElement, TokenType.WHITE_SPACE, languageVersion, textRange);
     return whiteSpace;
   }
 
@@ -134,7 +141,7 @@ public class PsiBasedFormattingModel implements FormattingModel {
   public Block getRootBlock() {
     return myRootBlock;
   }
-  
+
   public void canModifyAllWhiteSpaces() {
     myCanModifyAllWhiteSpaces = true;
   }

@@ -110,7 +110,7 @@ public class ChangeUtil {
   }
 
   public static LeafElement copyLeafWithText(LeafElement original, String text) {
-    LeafElement element = ASTFactory.leaf(original.getElementType(), text);
+    LeafElement element = ASTFactory.leaf(original.getElementType(), original.getLanguageVersion(), text);
     original.copyCopyableDataTo(element);
     encodeInformation(element, original);
     TreeUtil.clearCaches(element);

@@ -17,6 +17,7 @@
 package com.intellij.psi.impl.source.tree;
 
 import com.intellij.lang.Language;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiWhiteSpace;
@@ -24,8 +25,8 @@ import com.intellij.psi.TokenType;
 import org.jetbrains.annotations.NotNull;
 
 public class PsiWhiteSpaceImpl extends LeafPsiElement implements PsiWhiteSpace {
-  public PsiWhiteSpaceImpl(CharSequence text) {
-    super(TokenType.WHITE_SPACE, text);
+  public PsiWhiteSpaceImpl(CharSequence text, LanguageVersion languageVersion) {
+    super(TokenType.WHITE_SPACE, languageVersion, text);
   }
 
   @Override

@@ -36,9 +36,9 @@ import org.jetbrains.annotations.NotNull;
 public class PlainTextParserDefinition implements ParserDefinition {
   private static final IFileElementType PLAIN_FILE_ELEMENT_TYPE = new IFileElementType(FileTypes.PLAIN_TEXT.getLanguage()) {
     @Override
-    public ASTNode parseContents(ASTNode chameleon) {
+    public ASTNode parseContents(ASTNode chameleon, LanguageVersion<?> languageVersion) {
       final CharSequence chars = chameleon.getChars();
-      return ASTFactory.leaf(PlainTextTokenTypes.PLAIN_TEXT, chars);
+      return ASTFactory.leaf(PlainTextTokenTypes.PLAIN_TEXT, languageVersion, chars);
     }
   };
 

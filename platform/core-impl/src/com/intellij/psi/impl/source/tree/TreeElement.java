@@ -17,6 +17,7 @@
 package com.intellij.psi.impl.source.tree;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -37,11 +38,13 @@ public abstract class TreeElement extends UserDataHolderBase implements ASTNode,
   private CompositeElement myParent = null;
 
   private final IElementType myType;
+  private final LanguageVersion myLanguageVersion;
   private volatile int myStartOffsetInParent = -1;
   @NonNls protected static final String START_OFFSET_LOCK = new String("TreeElement.START_OFFSET_LOCK");
 
-  public TreeElement(IElementType type) {
+  public TreeElement(IElementType type, LanguageVersion languageVersion) {
     myType = type;
+    myLanguageVersion = languageVersion;
   }
 
   @Override
@@ -395,6 +398,10 @@ public abstract class TreeElement extends UserDataHolderBase implements ASTNode,
   @Override
   public IElementType getElementType() {
     return myType;
+  }
+
+  public LanguageVersion<?> getLanguageVersion() {
+    return myLanguageVersion;
   }
 }
 

@@ -34,23 +34,36 @@ public final class ASTFactory {
 
   // factory methods
   @NotNull
-  public static LazyParseableElement lazy(@NotNull final ILazyParseableElementType type, final CharSequence text) {
-    return ASTLazyFactory.EP.getValue(type).createLazy(type, text);
+  public static LazyParseableElement lazy(@NotNull ILazyParseableElementType type,
+                                          @NotNull LanguageVersion<?> languageVersion,
+                                          @NotNull CharSequence text) {
+    LazyParseableElement lazy = ASTLazyFactory.EP.getValue(type).createLazy(type, languageVersion, text);
+    lazy.putUserData(LanguageVersion.KEY, languageVersion);
+    return lazy;
   }
 
   @NotNull
-  public static CompositeElement composite(@NotNull final IElementType type) {
-    return ASTCompositeFactory.EP.getValue(type).createComposite(type);
+  public static CompositeElement composite(@NotNull IElementType type, @NotNull LanguageVersion<?> languageVersion) {
+    CompositeElement composite = ASTCompositeFactory.EP.getValue(type).createComposite(type, languageVersion);
+    composite.putUserData(LanguageVersion.KEY, languageVersion);
+    return composite;
   }
 
   @NotNull
-  public static LeafElement leaf(@NotNull final IElementType type, final CharSequence text) {
-    return ASTLeafFactory.EP.getValue(type).createLeaf(type, text);
+  public static LeafElement leaf(@NotNull IElementType type, @NotNull LanguageVersion<?> languageVersion, @NotNull CharSequence text) {
+    LeafElement leaf = ASTLeafFactory.EP.getValue(type).createLeaf(type, languageVersion, text);
+    leaf.putUserData(LanguageVersion.KEY, languageVersion);
+    return leaf;
   }
 
   @NotNull
   public static LeafElement whitespace(final CharSequence text) {
-    final PsiWhiteSpaceImpl w = new PsiWhiteSpaceImpl(WHITESPACES.intern(text));
+    return whitespace(text, Language.ANY_VERSION);
+  }
+
+  @NotNull
+  public static LeafElement whitespace(final CharSequence text, LanguageVersion languageVersion) {
+    final PsiWhiteSpaceImpl w = new PsiWhiteSpaceImpl(WHITESPACES.intern(text), languageVersion);
     CodeEditUtil.setNodeGenerated(w, true);
     return w;
   }

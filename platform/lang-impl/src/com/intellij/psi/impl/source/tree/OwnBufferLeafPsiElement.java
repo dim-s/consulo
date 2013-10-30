@@ -37,8 +37,8 @@ import org.jetbrains.annotations.NotNull;
 public class OwnBufferLeafPsiElement extends LeafElement implements PsiElement {
   private static final Logger LOG = Logger.getInstance("#com.intellij.psi.impl.source.tree.LeafPsiElement");
 
-  public OwnBufferLeafPsiElement(IElementType type, CharSequence text) {
-    super(type, text);
+  public OwnBufferLeafPsiElement(IElementType type, LanguageVersion<?> languageVersion, CharSequence text) {
+    super(type, languageVersion, text);
   }
 
   @Override

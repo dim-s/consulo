@@ -1,5 +1,6 @@
 package com.intellij.psi.impl.source.tree;
 
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiReference;
@@ -11,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
  * @author yole
  */
 public class PsiCoreCommentImpl extends LeafPsiElement implements PsiComment {
-  public PsiCoreCommentImpl(IElementType type, CharSequence text) {
-    super(type, text);
+  public PsiCoreCommentImpl(IElementType type, LanguageVersion languageVersion, CharSequence text) {
+    super(type, languageVersion, text);
   }
 
   @Override

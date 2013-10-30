@@ -17,6 +17,7 @@ package com.intellij.lang.impl;
 
 import com.intellij.lang.ASTLeafFactory;
 import com.intellij.lang.LanguageParserDefinitions;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.lang.ParserDefinition;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.impl.source.tree.LeafElement;
@@ -35,23 +36,23 @@ import org.jetbrains.annotations.Nullable;
 public class DefaultASTLeafFactory implements ASTLeafFactory {
   @NotNull
   @Override
-  public LeafElement createLeaf(IElementType type, CharSequence text) {
+  public LeafElement createLeaf(@NotNull IElementType type, @NotNull LanguageVersion<?> languageVersion, @NotNull CharSequence text) {
     final ParserDefinition parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(type.getLanguage());
-    if(parserDefinition != null) {
-      if(parserDefinition.getCommentTokens(type.getLanguageVersion()).contains(type)) {
-        return new PsiCoreCommentImpl(type, text);
+    if (parserDefinition != null) {
+      if (parserDefinition.getCommentTokens(languageVersion).contains(type)) {
+        return new PsiCoreCommentImpl(type, languageVersion, text);
       }
     }
 
     // this is special case, then type is WHITE_SPACE, but no parser definition
-    if(type == TokenType.WHITE_SPACE) {
-      return new PsiWhiteSpaceImpl(text);
+    if (type == TokenType.WHITE_SPACE) {
+      return new PsiWhiteSpaceImpl(text, languageVersion);
     }
 
     if (type instanceof ILeafElementType) {
-      return (LeafElement)((ILeafElementType)type).createLeafNode(text);
+      return (LeafElement)((ILeafElementType)type).createLeafNode(text, languageVersion);
     }
-    return new LeafPsiElement(type, text);
+    return new LeafPsiElement(type, languageVersion, text);
   }
 
   @Override

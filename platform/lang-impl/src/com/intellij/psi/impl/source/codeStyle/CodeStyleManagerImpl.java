@@ -57,14 +57,13 @@ import java.util.concurrent.TimeUnit;
 public class CodeStyleManagerImpl extends CodeStyleManager {
 
   private static final Logger LOG = Logger.getInstance("#com.intellij.psi.impl.source.codeStyle.CodeStyleManagerImpl");
-  private static final ThreadLocal<ProcessingUnderProgressInfo> SEQUENTIAL_PROCESSING_ALLOWED
-    = new ThreadLocal<ProcessingUnderProgressInfo>()
-  {
-    @Override
-    protected ProcessingUnderProgressInfo initialValue() {
-      return new ProcessingUnderProgressInfo();
-    }
-  };
+  private static final ThreadLocal<ProcessingUnderProgressInfo> SEQUENTIAL_PROCESSING_ALLOWED =
+    new ThreadLocal<ProcessingUnderProgressInfo>() {
+      @Override
+      protected ProcessingUnderProgressInfo initialValue() {
+        return new ProcessingUnderProgressInfo();
+      }
+    };
 
   private final Project myProject;
   @NonNls private static final String DUMMY_IDENTIFIER = "xxx";
@@ -89,8 +88,7 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
   @NotNull
   public PsiElement reformat(@NotNull PsiElement element, boolean canChangeWhiteSpacesOnly) throws IncorrectOperationException {
     CheckUtil.checkWritable(element);
-    if( !SourceTreeToPsiMap.hasTreeElement( element ) )
-    {
+    if (!SourceTreeToPsiMap.hasTreeElement(element)) {
       return element;
     }
 
@@ -98,7 +96,8 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
     final PsiElement formatted = SourceTreeToPsiMap.treeElementToPsi(new CodeFormatterFacade(getSettings()).processElement(treeElement));
     if (!canChangeWhiteSpacesOnly) {
       return postProcessElement(formatted);
-    } else {
+    }
+    else {
       return formatted;
     }
   }
@@ -119,16 +118,13 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
   }
 
   @Override
-  public PsiElement reformatRange(@NotNull PsiElement element,
-                                  int startOffset,
-                                  int endOffset,
-                                  boolean canChangeWhiteSpacesOnly) throws IncorrectOperationException {
+  public PsiElement reformatRange(@NotNull PsiElement element, int startOffset, int endOffset, boolean canChangeWhiteSpacesOnly)
+    throws IncorrectOperationException {
     return reformatRangeImpl(element, startOffset, endOffset, canChangeWhiteSpacesOnly);
   }
 
   @Override
-  public PsiElement reformatRange(@NotNull PsiElement element, int startOffset, int endOffset)
-    throws IncorrectOperationException {
+  public PsiElement reformatRange(@NotNull PsiElement element, int startOffset, int endOffset) throws IncorrectOperationException {
     return reformatRangeImpl(element, startOffset, endOffset, false);
 
   }
@@ -207,12 +203,9 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
       }
       boolean formatFromStart = range.getStartOffset() == 0;
       boolean formatToEnd = range.getEndOffset() == file.getTextLength();
-      infos.add(new RangeFormatInfo(
-        start == null ? null : smartPointerManager.createSmartPsiElementPointer(start),
-        end == null ? null : smartPointerManager.createSmartPsiElementPointer(end),
-        formatFromStart,
-        formatToEnd
-      ));
+      infos.add(new RangeFormatInfo(start == null ? null : smartPointerManager.createSmartPsiElementPointer(start),
+                                    end == null ? null : smartPointerManager.createSmartPsiElementPointer(end), formatFromStart,
+                                    formatToEnd));
     }
 
     FormatTextRanges formatRanges = new FormatTextRanges();
@@ -250,8 +243,7 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
                                        boolean canChangeWhiteSpacesOnly) throws IncorrectOperationException {
     LOG.assertTrue(element.isValid());
     CheckUtil.checkWritable(element);
-    if( !SourceTreeToPsiMap.hasTreeElement( element ) )
-    {
+    if (!SourceTreeToPsiMap.hasTreeElement(element)) {
       return element;
     }
 
@@ -264,7 +256,8 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
 
 
   @Override
-  public void reformatNewlyAddedElement(@NotNull final ASTNode parent, @NotNull final ASTNode addedElement) throws IncorrectOperationException {
+  public void reformatNewlyAddedElement(@NotNull final ASTNode parent, @NotNull final ASTNode addedElement)
+    throws IncorrectOperationException {
 
     LOG.assertTrue(addedElement.getTreeParent() == parent, "addedElement must be added to parent");
 
@@ -305,7 +298,7 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
   @Nullable
   static PsiElement findElementInTreeWithFormatterEnabled(final PsiFile file, final int offset) {
     final PsiElement bottomost = file.findElementAt(offset);
-    if (bottomost != null && LanguageFormatting.INSTANCE.forContext(bottomost) != null){
+    if (bottomost != null && LanguageFormatting.INSTANCE.forContext(bottomost) != null) {
       return bottomost;
     }
 
@@ -478,16 +471,15 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
    * E.g. there is a possible case that particular range marker serves for defining formatting range, hence, its start/end offsets
    * are updated correspondingly after current method call and whole white space region is reformatted.
    *
-   * @param file        target PSI file
-   * @param document    target document
-   * @param offset      offset that defines end boundary of the target line text fragment (start boundary is the first line's symbol)
-   * @return            text range that points to the newly inserted dummy text if any; <code>null</code> otherwise
-   * @throws IncorrectOperationException  if given file is read-only
+   * @param file     target PSI file
+   * @param document target document
+   * @param offset   offset that defines end boundary of the target line text fragment (start boundary is the first line's symbol)
+   * @return text range that points to the newly inserted dummy text if any; <code>null</code> otherwise
+   * @throws IncorrectOperationException if given file is read-only
    */
   @Nullable
   public static TextRange insertNewLineIndentMarker(@NotNull PsiFile file, @NotNull Document document, int offset)
-    throws IncorrectOperationException
-  {
+    throws IncorrectOperationException {
     TextRange result = insertNewLineIndentMarker(file, offset);
     if (result == null) {
       result = insertNewLineIndentMarker(document, offset);
@@ -550,7 +542,8 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
     try {
 
       ASTNode space1 = splitSpaceElement((TreeElement)element, offset - elementStart, charTable);
-      marker = Factory.createSingleLeafElement(TokenType.NEW_LINE_INDENT, DUMMY_IDENTIFIER, charTable, file.getManager());
+      marker = Factory
+        .createSingleLeafElement(TokenType.NEW_LINE_INDENT, file.getLanguageVersion(), DUMMY_IDENTIFIER, charTable, file.getManager());
       setSequentialProcessingAllowed(false);
       parent.addChild(marker, space1.getTreeNext());
     }
@@ -604,9 +597,9 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
    * Allows to check if given offset points to white space element within the given PSI file and return that white space
    * element in the case of positive answer.
    *
-   * @param file    target file
-   * @param offset  offset that might point to white space element within the given PSI file
-   * @return        target white space element for the given offset within the given file (if any); <code>null</code> otherwise
+   * @param file   target file
+   * @param offset offset that might point to white space element within the given PSI file
+   * @return target white space element for the given offset within the given file (if any); <code>null</code> otherwise
    */
   @Nullable
   public static PsiElement findWhiteSpaceNode(@NotNull PsiFile file, int offset) {
@@ -625,7 +618,7 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
       elementAt = findElementInTreeWithFormatterEnabled(file, offset);
     }
 
-    if( elementAt == null) {
+    if (elementAt == null) {
       return new Pair<PsiElement, CharTable>(null, charTable);
     }
     ASTNode node = elementAt.getNode();
@@ -677,8 +670,11 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
   private static ASTNode splitSpaceElement(TreeElement space, int offset, CharTable charTable) {
     LOG.assertTrue(space.getElementType() == TokenType.WHITE_SPACE);
     CharSequence chars = space.getChars();
-    LeafElement space1 = Factory.createSingleLeafElement(TokenType.WHITE_SPACE, chars, 0, offset, charTable, SharedImplUtil.getManagerByTree(space));
-    LeafElement space2 = Factory.createSingleLeafElement(TokenType.WHITE_SPACE, chars, offset, chars.length(), charTable, SharedImplUtil.getManagerByTree(space));
+    LeafElement space1 = Factory.createSingleLeafElement(TokenType.WHITE_SPACE, space.getLanguageVersion(), chars, 0, offset, charTable,
+                                                         SharedImplUtil.getManagerByTree(space));
+    LeafElement space2 = Factory
+      .createSingleLeafElement(TokenType.WHITE_SPACE, space.getLanguageVersion(), chars, offset, chars.length(), charTable,
+                               SharedImplUtil.getManagerByTree(space));
     ASTNode parent = space.getTreeParent();
     parent.replaceChild(space, space1);
     parent.addChild(space2, space1.getTreeNext());
@@ -702,7 +698,7 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
    * That means that call to this method with <code>'true'</code> argument is not mandatory for successful processing even
    * if this method is called with <code>'false'</code> argument before.
    *
-   * @param allowed     flag that defines if {@link #isSequentialProcessingAllowed() sequential processing} should be allowed
+   * @param allowed flag that defines if {@link #isSequentialProcessingAllowed() sequential processing} should be allowed
    */
   public static void setSequentialProcessingAllowed(boolean allowed) {
     ProcessingUnderProgressInfo info = SEQUENTIAL_PROCESSING_ALLOWED.get();
@@ -718,7 +714,7 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
 
     private static final long DURATION_TIME = TimeUnit.MILLISECONDS.convert(5, TimeUnit.SECONDS);
 
-    private int  myCount;
+    private int myCount;
     private long myEndTime;
 
     public void increment() {
@@ -786,18 +782,17 @@ public class CodeStyleManagerImpl extends CodeStyleManager {
     });
   }
 
-  private static class RangeFormatInfo{
+  private static class RangeFormatInfo {
 
     public final SmartPsiElementPointer startPointer;
     public final SmartPsiElementPointer endPointer;
-    public final boolean                fromStart;
-    public final boolean                toEnd;
+    public final boolean fromStart;
+    public final boolean toEnd;
 
     RangeFormatInfo(@Nullable SmartPsiElementPointer startPointer,
                     @Nullable SmartPsiElementPointer endPointer,
                     boolean fromStart,
-                    boolean toEnd)
-    {
+                    boolean toEnd) {
       this.startPointer = startPointer;
       this.endPointer = endPointer;
       this.fromStart = fromStart;

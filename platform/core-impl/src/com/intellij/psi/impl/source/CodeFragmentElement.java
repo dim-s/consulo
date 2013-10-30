@@ -16,11 +16,12 @@
 
 package com.intellij.psi.impl.source;
 
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.impl.source.tree.FileElement;
 
 public class CodeFragmentElement extends FileElement {
-  public CodeFragmentElement(CharSequence text) {
-    super(TokenType.CODE_FRAGMENT, text);
+  public CodeFragmentElement(CharSequence text, LanguageVersion languageVersion) {
+    super(TokenType.CODE_FRAGMENT, languageVersion, text);
   }
 }

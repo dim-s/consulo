@@ -24,17 +24,20 @@ import com.intellij.util.CharTable;
 public class SimpleTreePatcher implements TreePatcher {
   @Override
   public void insert(CompositeElement parent, TreeElement anchorBefore, OuterLanguageElement toInsert) {
-    if(anchorBefore != null) {
+    if (anchorBefore != null) {
       anchorBefore.rawInsertBeforeMe((TreeElement)toInsert);
     }
-    else parent.rawAddChildren((TreeElement)toInsert);
+    else {
+      parent.rawAddChildren((TreeElement)toInsert);
+    }
   }
 
   @Override
   public LeafElement split(LeafElement leaf, int offset, final CharTable table) {
     final CharSequence chars = leaf.getChars();
-    final LeafElement leftPart = ASTFactory.leaf(leaf.getElementType(), table.intern(chars, 0, offset));
-    final LeafElement rightPart = ASTFactory.leaf(leaf.getElementType(), table.intern(chars, offset, chars.length()));
+    final LeafElement leftPart = ASTFactory.leaf(leaf.getElementType(), leaf.getLanguageVersion(), table.intern(chars, 0, offset));
+    final LeafElement rightPart =
+      ASTFactory.leaf(leaf.getElementType(), leaf.getLanguageVersion(), table.intern(chars, offset, chars.length()));
     leaf.rawInsertAfterMe(leftPart);
     leftPart.rawInsertAfterMe(rightPart);
     leaf.rawRemove();

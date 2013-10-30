@@ -29,5 +29,5 @@ public interface ASTLazyFactory extends Predicate<IElementType> {
   ElementTypeEntryExtensionCollector<ASTLazyFactory> EP = ElementTypeEntryExtensionCollector.create("com.intellij.lang.ast.lazyFactory");
 
   @NotNull
-  LazyParseableElement createLazy(final ILazyParseableElementType type, final CharSequence text);
+  LazyParseableElement createLazy(final ILazyParseableElementType type, LanguageVersion<?> languageVersion, final CharSequence text);
 }

@@ -18,6 +18,7 @@ package com.intellij.psi.impl.source.tree;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.FileASTNode;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.psi.impl.source.CharTableImpl;
 import com.intellij.psi.impl.source.PsiFileImpl;
@@ -34,13 +35,8 @@ public class FileElement extends LazyParseableElement implements FileASTNode {
     return myCharTable;
   }
 
-  public FileElement(IElementType type, CharSequence text) {
-    super(type, text);
-  }
-
-  @Deprecated  // for 8.1 API compatibility
-  public FileElement(IElementType type) {
-    super(type, null);
+  public FileElement(IElementType type, LanguageVersion languageVersion, CharSequence text) {
+    super(type, languageVersion, text);
   }
 
   @Override

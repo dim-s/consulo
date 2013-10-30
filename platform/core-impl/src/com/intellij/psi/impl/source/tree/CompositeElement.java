@@ -20,6 +20,7 @@ import com.intellij.diagnostic.ThreadDumper;
 import com.intellij.extapi.psi.ASTDelegatePsiElement;
 import com.intellij.lang.ASTFactory;
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.lang.PsiElementFactory;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -60,8 +61,8 @@ public class CompositeElement extends TreeElement {
   private volatile PsiElement myWrapper = null;
   private static final boolean ASSERT_THREADING = true;//DebugUtil.CHECK || ApplicationManagerEx.getApplicationEx().isInternal() || ApplicationManagerEx.getApplicationEx().isUnitTestMode();
 
-  public CompositeElement(@NotNull IElementType type) {
-    super(type);
+  public CompositeElement(@NotNull IElementType type, @NotNull LanguageVersion languageVersion) {
+    super(type, languageVersion);
   }
 
   public int getModificationCount() {
@@ -682,7 +683,7 @@ public class CompositeElement extends TreeElement {
   @Override
   public void addLeaf(@NotNull final IElementType leafType, final CharSequence leafText, final ASTNode anchorBefore) {
     FileElement holder = new DummyHolder(getManager(), null).getTreeElement();
-    final LeafElement leaf = ASTFactory.leaf(leafType, holder.getCharTable().intern(leafText));
+    final LeafElement leaf = ASTFactory.leaf(leafType, LanguageVersion.KEY.get(this), holder.getCharTable().intern(leafText));
     CodeEditUtil.setNodeGenerated(leaf, true);
     holder.rawAddChildren(leaf);
 

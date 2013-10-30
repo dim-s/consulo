@@ -20,6 +20,7 @@
 package com.intellij.psi.impl.source.tree;
 
 import com.intellij.lang.ForeignLeafType;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.lang.TokenWrapper;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
@@ -28,14 +29,13 @@ import org.jetbrains.annotations.NotNull;
 public class ForeignLeafPsiElement extends LeafPsiElement {
   private ForeignLeafType myForeignType;
 
-  public ForeignLeafPsiElement(ForeignLeafType type, CharSequence text) {
-    super(dereferenceElementType(type.getDelegate()), text);
+  public ForeignLeafPsiElement(ForeignLeafType type, LanguageVersion<?> languageVersion, CharSequence text) {
+    super(dereferenceElementType(type.getDelegate()), languageVersion, text);
     myForeignType = type;
   }
 
   private static IElementType dereferenceElementType(IElementType type) {
-    while ( type instanceof TokenWrapper)
-      type = (( TokenWrapper ) type ).getDelegate();
+    while (type instanceof TokenWrapper) type = ((TokenWrapper)type).getDelegate();
 
     return type;
   }

@@ -18,6 +18,7 @@
 package com.intellij.psi.impl.source.tree;
 
 import com.intellij.lang.Language;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.*;
 import com.intellij.psi.templateLanguages.OuterLanguageElement;
 import org.jetbrains.annotations.NotNull;
@@ -25,8 +26,8 @@ import org.jetbrains.annotations.NotNull;
 public class PsiErrorElementImpl extends CompositePsiElement implements PsiErrorElement{
   private final String myErrorDescription;
 
-  public PsiErrorElementImpl(String errorDescription) {
-    super(TokenType.ERROR_ELEMENT);
+  public PsiErrorElementImpl(String errorDescription, LanguageVersion languageVersion) {
+    super(TokenType.ERROR_ELEMENT, languageVersion);
     myErrorDescription = errorDescription;
   }
 

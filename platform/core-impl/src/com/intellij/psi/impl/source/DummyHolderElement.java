@@ -16,11 +16,12 @@
 
 package com.intellij.psi.impl.source;
 
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.impl.source.tree.FileElement;
 
 public class DummyHolderElement extends FileElement {
-  public DummyHolderElement(CharSequence text) {
-    super(TokenType.DUMMY_HOLDER, text);
+  public DummyHolderElement(CharSequence text, LanguageVersion languageVersion) {
+    super(TokenType.DUMMY_HOLDER, languageVersion, text);
   }
 }

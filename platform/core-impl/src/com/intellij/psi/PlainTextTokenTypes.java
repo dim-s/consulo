@@ -18,6 +18,7 @@ package com.intellij.psi;
 
 import com.intellij.lang.ASTFactory;
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
@@ -25,8 +26,8 @@ import com.intellij.psi.tree.IFileElementType;
 public class PlainTextTokenTypes {
   public static final IElementType PLAIN_TEXT_FILE = new IFileElementType("PLAIN_TEXT_FILE", PlainTextLanguage.INSTANCE) {
     @Override
-    public ASTNode parseContents(ASTNode chameleon) {
-      return ASTFactory.leaf(PLAIN_TEXT, chameleon.getChars());
+    public ASTNode parseContents(ASTNode chameleon, LanguageVersion<?> languageVersion) {
+      return ASTFactory.leaf(PLAIN_TEXT, languageVersion, chameleon.getChars());
     }
   };
 

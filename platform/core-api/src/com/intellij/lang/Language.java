@@ -61,6 +61,8 @@ public abstract class Language extends UserDataHolderBase implements Named {
     }
   };
 
+  public static final LanguageVersion<?> ANY_VERSION = ANY.getVersions()[0];
+
   private NotNullLazyValue<LanguageVersion[]> myVersions = new NotNullLazyValue<LanguageVersion[]>() {
     @NotNull
     @Override

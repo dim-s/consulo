@@ -18,6 +18,7 @@ package com.intellij.psi.impl.source.tree;
 
 import com.intellij.lang.ASTFactory;
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
@@ -34,8 +35,8 @@ public abstract class LeafElement extends TreeElement {
 
   private final CharSequence myText;
 
-  protected LeafElement(IElementType type, CharSequence text) {
-    super(type);
+  protected LeafElement(IElementType type, LanguageVersion<?> languageVersion, CharSequence text) {
+    super(type, languageVersion);
     myText = text;
   }
 
@@ -126,7 +127,7 @@ public abstract class LeafElement extends TreeElement {
   }
 
   public LeafElement rawReplaceWithText(String newText) {
-    LeafElement newLeaf = ASTFactory.leaf(getElementType(), newText);
+    LeafElement newLeaf = ASTFactory.leaf(getElementType(), LanguageVersion.KEY.get(this), newText);
     copyUserDataTo(newLeaf);
     rawReplaceWithList(newLeaf);
     newLeaf.clearCaches();

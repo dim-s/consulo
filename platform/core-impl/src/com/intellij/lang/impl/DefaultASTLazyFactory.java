@@ -17,6 +17,7 @@ package com.intellij.lang.impl;
 
 import com.intellij.lang.ASTLazyFactory;
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.impl.source.CodeFragmentElement;
 import com.intellij.psi.impl.source.DummyHolderElement;
@@ -36,22 +37,22 @@ import org.jetbrains.annotations.Nullable;
 public class DefaultASTLazyFactory implements ASTLazyFactory {
   @NotNull
   @Override
-  public LazyParseableElement createLazy(ILazyParseableElementType type, CharSequence text) {
+  public LazyParseableElement createLazy(ILazyParseableElementType type, LanguageVersion<?> languageVersion, CharSequence text) {
     if (type instanceof IFileElementType) {
       final ASTNode node = type.createNode(text);
-      return node instanceof  LazyParseableElement ? (LazyParseableElement) node : new FileElement(type, text);
+      return node instanceof LazyParseableElement ? (LazyParseableElement)node : new FileElement(type, languageVersion, text);
     }
     final ASTNode node = type.createNode(text);
     if (node != null) {
       return (LazyParseableElement)node;
     }
     if (type == TokenType.CODE_FRAGMENT) {
-      return new CodeFragmentElement(null);
+      return new CodeFragmentElement(null, languageVersion);
     }
     else if (type == TokenType.DUMMY_HOLDER) {
-      return new DummyHolderElement(text);
+      return new DummyHolderElement(text, languageVersion);
     }
-    return new LazyParseablePsiElement(type, text);
+    return new LazyParseablePsiElement(type, languageVersion, text);
   }
 
   @Override

@@ -109,9 +109,9 @@ public abstract class PsiFileImpl extends UserDataHolderBase implements PsiFileE
 
   public TreeElement createContentLeafElement(CharSequence leafText) {
     if (myContentElementType instanceof ILazyParseableElementType) {
-      return ASTFactory.lazy((ILazyParseableElementType)myContentElementType, leafText);
+      return ASTFactory.lazy((ILazyParseableElementType)myContentElementType, getLanguageVersion(), leafText);
     }
-    return ASTFactory.leaf(myContentElementType, leafText);
+    return ASTFactory.leaf(myContentElementType, getLanguageVersion(), leafText);
   }
 
   @Override
@@ -362,7 +362,7 @@ public abstract class PsiFileImpl extends UserDataHolderBase implements PsiFileE
       treeElement = (FileElement)contentLeaf;
     }
     else {
-      final CompositeElement xxx = ASTFactory.composite(myElementType);
+      final CompositeElement xxx = ASTFactory.composite(myElementType, getLanguageVersion());
       assert xxx instanceof FileElement : "BUMM";
       treeElement = (FileElement)xxx;
       treeElement.rawAddChildrenWithoutNotifications(contentLeaf);

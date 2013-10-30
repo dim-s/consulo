@@ -373,7 +373,7 @@ public class CodeEditUtil {
 
   @Nullable
   public static PsiElement createLineFeed(final PsiManager manager) {
-    return Factory.createSingleLeafElement(TokenType.WHITE_SPACE, "\n", 0, 1, null, manager).getPsi();
+    return Factory.createSingleLeafElement(TokenType.WHITE_SPACE, Language.ANY_VERSION, "\n", 0, 1, null, manager).getPsi();
   }
 
   /**

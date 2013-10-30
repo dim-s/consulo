@@ -758,14 +758,14 @@ public class GeneratedParserUtilBase {
 
     @NotNull
     @Override
-    public ASTNode createCompositeNode() {
-      return new DummyBlock();
+    public ASTNode createCompositeNode(LanguageVersion languageVersion) {
+      return new DummyBlock(languageVersion);
     }
   }
 
   public static class DummyBlock extends CompositePsiElement {
-    DummyBlock() {
-      super(DUMMY_BLOCK);
+    DummyBlock(LanguageVersion languageVersion) {
+      super(DUMMY_BLOCK, languageVersion);
     }
 
     @Override

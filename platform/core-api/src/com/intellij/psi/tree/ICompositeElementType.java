@@ -16,14 +16,13 @@
 package com.intellij.psi.tree;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.LanguageVersion;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author peter
  */
 public interface ICompositeElementType {
-
   @NotNull
-  ASTNode createCompositeNode();
-  
+  ASTNode createCompositeNode(LanguageVersion languageVersion);
 }

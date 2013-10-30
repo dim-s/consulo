@@ -56,10 +56,12 @@ public class ILazyParseableElementType extends IElementType {
    * Parses the contents of the specified chameleon node and returns the AST tree
    * representing the parsed contents.
    *
+   *
    * @param chameleon the node to parse.
+   * @param languageVersion
    * @return the parsed contents of the node.
    */
-  public ASTNode parseContents(final ASTNode chameleon) {
+  public ASTNode parseContents(final ASTNode chameleon, LanguageVersion<?> languageVersion) {
     final PsiElement parentElement = chameleon.getTreeParent().getPsi();
     assert parentElement != null : "Bad chameleon: " + chameleon;
     return doParseContents(chameleon, parentElement);

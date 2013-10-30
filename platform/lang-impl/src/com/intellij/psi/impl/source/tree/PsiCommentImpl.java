@@ -16,6 +16,7 @@
 
 package com.intellij.psi.impl.source.tree;
 
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.LiteralTextEscaper;
 import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.psi.impl.source.tree.injected.CommentLiteralEscaper;
@@ -23,8 +24,8 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 
 public class PsiCommentImpl extends PsiCoreCommentImpl implements PsiLanguageInjectionHost {
-  public PsiCommentImpl(IElementType type, CharSequence text) {
-    super(type, text);
+  public PsiCommentImpl(IElementType type, LanguageVersion languageVersion, CharSequence text) {
+    super(type, languageVersion, text);
   }
 
   @Override

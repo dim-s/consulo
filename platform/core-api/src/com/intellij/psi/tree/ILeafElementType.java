@@ -16,14 +16,13 @@
 package com.intellij.psi.tree;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.LanguageVersion;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author peter
  */
 public interface ILeafElementType {
-
   @NotNull
-  ASTNode createLeafNode(CharSequence leafText);
-
+  ASTNode createLeafNode(CharSequence leafText, LanguageVersion<?> languageVersion);
 }

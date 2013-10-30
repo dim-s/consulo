@@ -43,13 +43,13 @@ import org.jetbrains.annotations.NotNull;
 public class LeafPsiElement extends LeafElement implements PsiElement, NavigationItem {
   private static final Logger LOG = Logger.getInstance("#com.intellij.psi.impl.source.tree.LeafPsiElement");
 
-  public LeafPsiElement(IElementType type, CharSequence text) {
-    super(type, text);
+  public LeafPsiElement(IElementType type, LanguageVersion languageVersion, CharSequence text) {
+    super(type, languageVersion, text);
   }
 
   @Deprecated
-  public LeafPsiElement(IElementType type, CharSequence buffer, int startOffset, int endOffset, CharTable table) {
-    super(type, table.intern(buffer, startOffset, endOffset));
+  public LeafPsiElement(IElementType type, LanguageVersion languageVersion, CharSequence buffer, int startOffset, int endOffset, CharTable table) {
+    super(type, languageVersion, table.intern(buffer, startOffset, endOffset));
   }
 
   @Override

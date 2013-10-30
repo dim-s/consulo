@@ -16,6 +16,7 @@
 package com.intellij.lang.impl;
 
 import com.intellij.lang.ASTCompositeFactory;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.impl.source.tree.CompositeElement;
 import com.intellij.psi.impl.source.tree.FileElement;
 import com.intellij.psi.tree.ICompositeElementType;
@@ -31,14 +32,14 @@ import org.jetbrains.annotations.Nullable;
 public class DefaultASTCompositeFactory implements ASTCompositeFactory {
   @NotNull
   @Override
-  public CompositeElement createComposite(IElementType type) {
+  public CompositeElement createComposite(IElementType type, LanguageVersion<?> languageVersion) {
     if (type instanceof IFileElementType) {
-      return new FileElement(type, null);
+      return new FileElement(type, languageVersion, null);
     }
     if (type instanceof ICompositeElementType) {
-      return (CompositeElement)((ICompositeElementType)type).createCompositeNode();
+      return (CompositeElement)((ICompositeElementType)type).createCompositeNode(languageVersion);
     }
-    return new CompositeElement(type);
+    return new CompositeElement(type, languageVersion);
   }
 
   @Override

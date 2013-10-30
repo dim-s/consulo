@@ -20,6 +20,7 @@ import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.lang.ASTFactory;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vcs.checkin.ReformatBeforeCheckinHandler;
@@ -278,12 +279,13 @@ public class FormatterUtil {
    */
   public static void replaceInnerWhiteSpace(@NotNull final String newWhiteSpaceText,
                                             @NotNull final ASTNode holder,
+                                            @NotNull final LanguageVersion languageVersion,
                                             @NotNull final TextRange whiteSpaceRange)
   {
     final CharTable charTable = SharedImplUtil.findCharTableByTree(holder);
     StringBuilder newText = createNewLeafChars(holder, whiteSpaceRange, newWhiteSpaceText);
     LeafElement newElement =
-      Factory.createSingleLeafElement(holder.getElementType(), newText, charTable, holder.getPsi().getManager());
+      Factory.createSingleLeafElement(holder.getElementType(), languageVersion, newText, charTable, holder.getPsi().getManager());
 
     holder.getTreeParent().replaceChild(holder, newElement);
   }
@@ -291,6 +293,7 @@ public class FormatterUtil {
   public static void replaceWhiteSpace(final String whiteSpace,
                                        final ASTNode leafElement,
                                        final IElementType whiteSpaceToken,
+                                       final LanguageVersion<?> languageVersion,
                                        final @Nullable TextRange textRange) {
     final CharTable charTable = SharedImplUtil.findCharTableByTree(leafElement);
 
@@ -306,14 +309,14 @@ public class FormatterUtil {
         whiteSpace.length() >
         0) {
       LeafElement whiteSpaceElement =
-        Factory.createSingleLeafElement(treePrev.getElementType(), whiteSpace, charTable, SharedImplUtil.getManagerByTree(leafElement));
+        Factory.createSingleLeafElement(treePrev.getElementType(), languageVersion, whiteSpace, charTable, SharedImplUtil.getManagerByTree(leafElement));
 
       ASTNode treeParent = treePrev.getTreeParent();
       treeParent.replaceChild(treePrev, whiteSpaceElement);
     }
     else {
       LeafElement whiteSpaceElement =
-        Factory.createSingleLeafElement(whiteSpaceToken, whiteSpace, charTable, SharedImplUtil.getManagerByTree(leafElement));
+        Factory.createSingleLeafElement(whiteSpaceToken, languageVersion, whiteSpace, charTable, SharedImplUtil.getManagerByTree(leafElement));
 
       if (treePrev == null) {
         if (whiteSpace.length() > 0) {

@@ -15,6 +15,7 @@
  */
 package com.intellij.psi.templateLanguages;
 
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
@@ -24,8 +25,8 @@ import org.jetbrains.annotations.NotNull;
  * @author peter
  */
 public class OuterLanguageElementImpl extends LeafPsiElement implements OuterLanguageElement {
-  public OuterLanguageElementImpl(IElementType type, CharSequence text) {
-    super(type, text);
+  public OuterLanguageElementImpl(IElementType type, LanguageVersion languageVersion, CharSequence text) {
+    super(type, languageVersion, text);
   }
 
   @Override

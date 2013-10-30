@@ -41,8 +41,8 @@ public abstract class CompositePsiElement extends CompositeElement implements Ps
   private static final Logger LOG = Logger.getInstance("#com.intellij.psi.impl.source.tree.CompositePsiElement");
   protected static int ourHC = 0;
 
-  public CompositePsiElement(IElementType type) {
-    super(type);
+  public CompositePsiElement(IElementType type, LanguageVersion languageVersion) {
+    super(type, languageVersion);
     setPsi(this);
   }
 

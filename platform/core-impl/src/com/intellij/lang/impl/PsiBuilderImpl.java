@@ -81,6 +81,7 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
   private TokenSet myComments;
 
   private CharTable myCharTable;
+  @NotNull private final LanguageVersion myLanguageVersion;
   private final CharSequence myText;
   private final char[] myTextArray;
   private boolean myDebugMode = false;
@@ -148,8 +149,16 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
                         @NotNull final CharSequence text,
                         @Nullable ASTNode originalTree,
                         @Nullable MyTreeStructure parentLightTree) {
-    this(project, containingFile, parserDefinition.getWhitespaceTokens(languageVersion), parserDefinition.getCommentTokens(languageVersion),
-         lexer, charTable, text, originalTree, parentLightTree);
+    this(project,
+         containingFile,
+         parserDefinition.getWhitespaceTokens(languageVersion),
+         parserDefinition.getCommentTokens(languageVersion),
+         lexer,
+         languageVersion,
+         charTable,
+         text,
+         originalTree,
+         parentLightTree);
   }
 
   public PsiBuilderImpl(Project project,
@@ -157,12 +166,14 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
                         @NotNull TokenSet whiteSpaces,
                         @NotNull TokenSet comments,
                         @NotNull Lexer lexer,
+                        @NotNull final LanguageVersion languageVersion,
                         CharTable charTable,
                         @NotNull final CharSequence text,
                         @Nullable ASTNode originalTree,
                         @Nullable MyTreeStructure parentLightTree) {
     myProject = project;
     myFile = containingFile;
+    myLanguageVersion = languageVersion;
 
     myText = text;
     myTextArray = CharArrayUtil.fromSequenceWithoutCopying(text);
@@ -1025,7 +1036,8 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
     final IElementType type = rootMarker.getTokenType();
     @SuppressWarnings("NullableProblems")
     final ASTNode rootNode =
-      type instanceof ILazyParseableElementType ? ASTFactory.lazy((ILazyParseableElementType)type, null) : createComposite(rootMarker);
+      type instanceof ILazyParseableElementType ?
+      ASTFactory.lazy((ILazyParseableElementType)type, myLanguageVersion, null) : createComposite(rootMarker, myLanguageVersion);
     if (myCharTable == null) {
       myCharTable = rootNode instanceof FileElement ? ((FileElement)rootNode).getCharTable() : new CharTableImpl();
     }
@@ -1039,9 +1051,11 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
     private final DiffTreeChangeBuilder<ASTNode, ASTNode> myDelegate;
     private final ASTConverter myConverter;
 
-    public ConvertFromTokensToASTBuilder(StartMarker rootNode, DiffTreeChangeBuilder<ASTNode, ASTNode> delegate) {
+    public ConvertFromTokensToASTBuilder(StartMarker rootNode,
+                                         LanguageVersion<?> languageVersion,
+                                         DiffTreeChangeBuilder<ASTNode, ASTNode> delegate) {
       myDelegate = delegate;
-      myConverter = new ASTConverter(rootNode);
+      myConverter = new ASTConverter(rootNode, languageVersion);
     }
 
     @Override
@@ -1071,7 +1085,7 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
   @NotNull
   private DiffLog merge(@NotNull final ASTNode oldRoot, @NotNull StartMarker newRoot) {
     DiffLog diffLog = new DiffLog();
-    final ConvertFromTokensToASTBuilder builder = new ConvertFromTokensToASTBuilder(newRoot, diffLog);
+    final ConvertFromTokensToASTBuilder builder = new ConvertFromTokensToASTBuilder(newRoot, myLanguageVersion, diffLog);
     final MyTreeStructure treeStructure = new MyTreeStructure(newRoot, null);
     final MyComparator comparator = new MyComparator(getUserDataUnprotected(CUSTOM_COMPARATOR), treeStructure);
 
@@ -1247,7 +1261,7 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
         if (!marker.myDoneMarker.myCollapse) {
           curMarker = marker;
 
-          final CompositeElement childNode = createComposite(marker);
+          final CompositeElement childNode = createComposite(marker, myLanguageVersion);
           curNode.rawAddChildrenWithoutNotifications(childNode);
           curNode = childNode;
 
@@ -1259,7 +1273,7 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
         }
       }
       else if (item instanceof ErrorItem) {
-        final CompositeElement errorElement = Factory.createErrorElement(((ErrorItem)item).myMessage);
+        final CompositeElement errorElement = Factory.createErrorElement(((ErrorItem)item).myMessage, myLanguageVersion);
         curNode.rawAddChildrenWithoutNotifications(errorElement);
       }
       else if (item instanceof DoneMarker) {
@@ -1298,18 +1312,18 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
     return startMarker.myDoneMarker.myLexemeIndex;
   }
 
-  private static CompositeElement createComposite(final StartMarker marker) {
+  private static CompositeElement createComposite(final StartMarker marker, LanguageVersion<?> languageVersion) {
     final IElementType type = marker.myType;
     if (type == TokenType.ERROR_ELEMENT) {
       String message = marker.myDoneMarker instanceof DoneWithErrorMarker ? ((DoneWithErrorMarker)marker.myDoneMarker).myMessage : null;
-      return Factory.createErrorElement(message);
+      return Factory.createErrorElement(message, languageVersion);
     }
 
     if (type == null) {
       throw new RuntimeException(makeUnbalandedMessage(marker.myBuilder.myFile));
     }
 
-    return ASTFactory.composite(type);
+    return ASTFactory.composite(type, languageVersion);
   }
 
   @Nullable
@@ -1596,9 +1610,11 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
 
   private static class ASTConverter implements Convertor<Node, ASTNode> {
     private final StartMarker myRoot;
+    private final LanguageVersion<?> myLanguageVersion;
 
-    public ASTConverter(final StartMarker root) {
+    public ASTConverter(final StartMarker root, LanguageVersion<?> languageVersion) {
       myRoot = root;
+      myLanguageVersion = languageVersion;
     }
 
     @Override
@@ -1608,12 +1624,12 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
         return token.myBuilder.createLeaf(token.getTokenType(), token.myTokenStart, token.myTokenEnd);
       }
       else if (n instanceof ErrorItem) {
-        return Factory.createErrorElement(((ErrorItem)n).myMessage);
+        return Factory.createErrorElement(((ErrorItem)n).myMessage, myLanguageVersion);
       }
       else {
         final StartMarker startMarker = (StartMarker)n;
         final CompositeElement composite =
-          n == myRoot ? (CompositeElement)myRoot.myBuilder.createRootAST(myRoot) : createComposite(startMarker);
+          n == myRoot ? (CompositeElement)myRoot.myBuilder.createRootAST(myRoot) : createComposite(startMarker, myLanguageVersion);
         startMarker.myBuilder.bind(startMarker, composite);
         return composite;
       }
@@ -1633,7 +1649,7 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
   private TreeElement createLeaf(final IElementType type, final int start, final int end) {
     CharSequence text = myCharTable.intern(myText, start, end);
     if (myWhitespaces.contains(type)) {
-      return new PsiWhiteSpaceImpl(text);
+      return new PsiWhiteSpaceImpl(text, myLanguageVersion);
     }
 
     if (type instanceof CustomParsingType) {
@@ -1641,10 +1657,10 @@ public class PsiBuilderImpl extends UserDataHolderBase implements PsiBuilder {
     }
 
     if (type instanceof ILazyParseableElementType) {
-      return ASTFactory.lazy((ILazyParseableElementType)type, text);
+      return ASTFactory.lazy((ILazyParseableElementType)type, myLanguageVersion, text);
     }
 
-    return ASTFactory.leaf(type, text);
+    return ASTFactory.leaf(type, myLanguageVersion, text);
   }
 
   /**

@@ -20,6 +20,7 @@
 package com.intellij.psi.impl.source.tree;
 
 import com.intellij.lang.ASTLeafFactory;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.psi.PlainTextTokenTypes;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +29,8 @@ import org.jetbrains.annotations.Nullable;
 public class PlainTextASTLeafFactory implements ASTLeafFactory {
   @Override
   @NotNull
-  public LeafElement createLeaf(final IElementType type, CharSequence text) {
-    return new PsiPlainTextImpl(text);
+  public LeafElement createLeaf(@NotNull final IElementType type, @NotNull LanguageVersion<?> languageVersion, @NotNull CharSequence text) {
+    return new PsiPlainTextImpl(text, languageVersion);
   }
 
   @Override

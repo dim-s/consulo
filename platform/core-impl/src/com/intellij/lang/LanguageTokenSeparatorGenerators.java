@@ -42,10 +42,10 @@ public class LanguageTokenSeparatorGenerators extends LanguageExtension<TokenSep
           //noinspection EnumSwitchStatementWhichMissesCases
           switch(parserDefinition.spaceExistanceTypeBetweenTokens(left, right)){
             case MUST:
-              generatedWhitespace = Factory.createSingleLeafElement(TokenType.WHITE_SPACE, " ", 0, 1, null, manager);
+              generatedWhitespace = Factory.createSingleLeafElement(TokenType.WHITE_SPACE, Language.ANY_VERSION, " ", 0, 1, null, manager);
               break;
             case MUST_LINE_BREAK:
-              generatedWhitespace = Factory.createSingleLeafElement(TokenType.WHITE_SPACE, "\n", 0, 1, null, manager);
+              generatedWhitespace = Factory.createSingleLeafElement(TokenType.WHITE_SPACE, Language.ANY_VERSION, "\n", 0, 1, null, manager);
               break;
             default:
               generatedWhitespace = null;

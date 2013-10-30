@@ -46,12 +46,16 @@ import javax.swing.*;
 public class TemplateDataElementType extends IFileElementType implements ITemplateDataElementType {
   private static final Logger LOG = Logger.getInstance("#com.intellij.psi.templateLanguages.TemplateDataElementType");
 
-  public static final LanguageExtension<TreePatcher> TREE_PATCHER = new LanguageExtension<TreePatcher>("com.intellij.lang.treePatcher", new SimpleTreePatcher());
+  public static final LanguageExtension<TreePatcher> TREE_PATCHER =
+    new LanguageExtension<TreePatcher>("com.intellij.lang.treePatcher", new SimpleTreePatcher());
 
   private final IElementType myTemplateElementType;
   private final IElementType myOuterElementType;
 
-  public TemplateDataElementType(@NonNls String debugName, Language language, IElementType templateElementType, IElementType outerElementType) {
+  public TemplateDataElementType(@NonNls String debugName,
+                                 Language language,
+                                 IElementType templateElementType,
+                                 IElementType outerElementType) {
     super(debugName, language);
     myTemplateElementType = templateElementType;
     myOuterElementType = outerElementType;
@@ -69,7 +73,7 @@ public class TemplateDataElementType extends IFileElementType implements ITempla
   }
 
   @Override
-  public ASTNode parseContents(ASTNode chameleon) {
+  public ASTNode parseContents(ASTNode chameleon, LanguageVersion<?> languageVersion) {
     final CharTable table = SharedImplUtil.findCharTableByTree(chameleon);
     final FileElement treeElement = new DummyHolder(((TreeElement)chameleon).getManager(), null, table).getTreeElement();
     final PsiFile file = (PsiFile)TreeUtil.getFileElement((TreeElement)chameleon).getPsi();
@@ -83,12 +87,13 @@ public class TemplateDataElementType extends IFileElementType implements ITempla
     final PsiFile templateFile = createTemplateFile(file, language, chars, viewProvider);
 
     final TreeElement parsed = ((PsiFileImpl)templateFile).calcTreeElement();
-    Lexer langLexer = LanguageParserDefinitions.INSTANCE.forLanguage(language).createLexer(file.getProject(), templateFile.getLanguageVersion());
+    LanguageVersion templateLanguageVersion = templateFile.getLanguageVersion();
+    Lexer langLexer = LanguageParserDefinitions.INSTANCE.forLanguage(language).createLexer(file.getProject(), templateLanguageVersion);
     final Lexer lexer = new MergingLexerAdapter(
       new TemplateBlackAndWhiteLexer(createBaseLexer(templateFile, viewProvider), langLexer, myTemplateElementType, myOuterElementType),
       TokenSet.create(myTemplateElementType, myOuterElementType));
     lexer.start(chars);
-    insertOuters(parsed, lexer, table);
+    insertOuters(parsed, lexer, templateLanguageVersion, table);
 
     if (parsed != null) {
       final TreeElement element = parsed.getFirstChildNode();
@@ -133,7 +138,7 @@ public class TemplateDataElementType extends IFileElementType implements ITempla
     return result;
   }
 
-  private void insertOuters(TreeElement root, Lexer lexer, final CharTable table) {
+  private void insertOuters(TreeElement root, Lexer lexer, LanguageVersion templateLanguageVersion, final CharTable table) {
     TreePatcher patcher = TREE_PATCHER.forLanguage(root.getPsi().getLanguage());
 
     int treeOffset = 0;
@@ -152,7 +157,7 @@ public class TemplateDataElementType extends IFileElementType implements ITempla
 
         if (leaf == null) break;
 
-        final OuterLanguageElementImpl newLeaf = createOuterLanguageElement(lexer, table, myOuterElementType);
+        final OuterLanguageElementImpl newLeaf = createOuterLanguageElement(lexer, templateLanguageVersion, table, myOuterElementType);
         patcher.insert(leaf.getTreeParent(), leaf, newLeaf);
         leaf.getTreeParent().subtreeChanged();
         leaf = newLeaf;
@@ -162,13 +167,15 @@ public class TemplateDataElementType extends IFileElementType implements ITempla
 
     if (lexer.getTokenType() != null) {
       assert lexer.getTokenType() != myTemplateElementType;
-      final OuterLanguageElementImpl newLeaf = createOuterLanguageElement(lexer, table, myOuterElementType);
+      final OuterLanguageElementImpl newLeaf = createOuterLanguageElement(lexer, templateLanguageVersion, table, myOuterElementType);
       ((CompositeElement)root).rawAddChildren(newLeaf);
       ((CompositeElement)root).subtreeChanged();
     }
   }
 
-  protected OuterLanguageElementImpl createOuterLanguageElement(final Lexer lexer, final CharTable table,
+  protected OuterLanguageElementImpl createOuterLanguageElement(final Lexer lexer,
+                                                                LanguageVersion templateLanguageVersion,
+                                                                final CharTable table,
                                                                 final IElementType outerElementType) {
     final CharSequence buffer = lexer.getBufferSequence();
     final int tokenStart = lexer.getTokenStart();
@@ -180,12 +187,13 @@ public class TemplateDataElementType extends IFileElementType implements ITempla
       LOG.error("Invalid end: " + tokenEnd + "; " + lexer);
     }
 
-    return new OuterLanguageElementImpl(outerElementType, table.intern(buffer, tokenStart, tokenEnd));
+    return new OuterLanguageElementImpl(outerElementType, templateLanguageVersion, table.intern(buffer, tokenStart, tokenEnd));
   }
 
   protected PsiFile createFromText(final Language language, CharSequence text, PsiManager manager) {
     @NonNls
-    final LightVirtualFile virtualFile = new LightVirtualFile("foo", createTemplateFakeFileType(language), text, LocalTimeCounter.currentTime());
+    final LightVirtualFile virtualFile =
+      new LightVirtualFile("foo", createTemplateFakeFileType(language), text, LocalTimeCounter.currentTime());
 
     FileViewProvider viewProvider = new SingleRootFileViewProvider(manager, virtualFile, false) {
       @Override

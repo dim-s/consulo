@@ -20,6 +20,7 @@
 package com.intellij.psi.impl.source.tree;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.LanguageVersion;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.LogUtil;
 import com.intellij.openapi.diagnostic.Logger;
@@ -49,8 +50,8 @@ public class LazyParseableElement extends CompositeElement {
   private final ChameleonLock lock = new ChameleonLock();
   private CharSequence myText; /** guarded by {@link #lock} */
 
-  public LazyParseableElement(@NotNull IElementType type, CharSequence text) {
-    super(type);
+  public LazyParseableElement(@NotNull IElementType type, LanguageVersion languageVersion, CharSequence text) {
+    super(type, languageVersion);
     synchronized (lock) {
       myText = text == null ? null : text.toString();
       if (text != null) {
@@ -162,7 +163,7 @@ public class LazyParseableElement extends CompositeElement {
     ApplicationManager.getApplication().assertReadAccessAllowed();
 
     ILazyParseableElementType type = (ILazyParseableElementType)getElementType();
-    ASTNode parsedNode = type.parseContents(this);
+    ASTNode parsedNode = type.parseContents(this, getLanguageVersion());
 
     if (parsedNode == null && text.length() > 0) {
       CharSequence diagText = ApplicationManager.getApplication().isInternal() ? text : "";

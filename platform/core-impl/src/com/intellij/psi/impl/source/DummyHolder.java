@@ -131,7 +131,7 @@ public class DummyHolder extends PsiFileImpl {
     synchronized (myTreeElementLock) {
       fileElement = myFileElement;
       if (fileElement == null) {
-        fileElement = new FileElement(TokenType.DUMMY_HOLDER, null);
+        fileElement = new FileElement(TokenType.DUMMY_HOLDER, getLanguageVersion(), null);
         fileElement.setPsi(this);
         if (myTable != null) fileElement.setCharTable(myTable);
         myFileElement = fileElement;
