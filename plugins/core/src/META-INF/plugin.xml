@@ -18,6 +18,7 @@
 
   <extensionPoints>
     <extensionPoint name="listOfElements" beanClass="org.mustbe.consulo.util.ListOfElementsEP"/>
+    <extensionPoint name="packageViewHelper" interface="com.intellij.ide.projectView.impl.PackageViewHelper" area="CONSULO_PROJECT"/>
     <extensionPoint name="addTo.listOfElements" beanClass="org.mustbe.consulo.util.AddToElementEP"/>
     <extensionPoint name="search.topHitProvider" interface="com.intellij.ide.SearchTopHitProvider"/>
     <extensionPoint name="referenceInjector" interface="com.intellij.psi.injection.ReferenceInjector"/>
@@ -2538,5 +2539,6 @@
     <contentFolderPropertyProvider implementation="org.mustbe.consulo.roots.impl.property.GeneratedContentFolderPropertyProvider"/>
 
     <generatedSourcesFilter implementation="org.mustbe.consulo.roots.impl.property.GeneratedOnRootSourcesFilter"/>
+    <packageViewHelper implementation="com.intellij.ide.projectView.impl.ContentRootPackageViewHelper" />
   </extensions>
 </idea-plugin>

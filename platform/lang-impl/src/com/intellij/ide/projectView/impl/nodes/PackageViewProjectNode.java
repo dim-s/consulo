@@ -17,22 +17,21 @@ package com.intellij.ide.projectView.impl.nodes;
 
 import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.projectView.impl.ModuleGroup;
+import com.intellij.ide.projectView.impl.PackageViewHelper;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.containers.ContainerUtil;
-import org.consulo.psi.PsiPackage;
-import org.consulo.psi.PsiPackageManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class PackageViewProjectNode extends AbstractProjectNode {
   public PackageViewProjectNode(Project project, ViewSettings viewSettings) {
@@ -43,16 +42,16 @@ public class PackageViewProjectNode extends AbstractProjectNode {
   @NotNull
   public Collection<AbstractTreeNode> getChildren() {
     if (getSettings().isShowModules()) {
-      final List<Module> allModules = new ArrayList<Module>(Arrays.asList(ModuleManager.getInstance(getProject()).getModules()));
-      for (Iterator<Module> it = allModules.iterator(); it.hasNext();) {
-        final Module module = it.next();
-        final VirtualFile[] sourceRoots = ModuleRootManager.getInstance(module).getSourceRoots();
-        if (sourceRoots.length == 0) {
-          // do not show modules with no source roots configured
-          it.remove();
+      Module[] allModules = ModuleManager.getInstance(getProject()).getModules();
+      List<Module> modules = new ArrayList<Module>(allModules.length);
+      for (Module module : allModules) {
+        for (PackageViewHelper packageViewHelper : PackageViewHelper.EP_NAME.getExtensions(myProject)) {
+          if (packageViewHelper.hasNodesFromModule(module)) {
+            modules.add(module);
+          }
         }
       }
-      return modulesAndGroups(allModules.toArray(new Module[allModules.size()]));
+      return modulesAndGroups(modules);
     }
     else {
       final List<VirtualFile> sourceRoots = new ArrayList<VirtualFile>();
@@ -61,7 +60,7 @@ public class PackageViewProjectNode extends AbstractProjectNode {
 
       final PsiManager psiManager = PsiManager.getInstance(myProject);
       final List<AbstractTreeNode> children = new ArrayList<AbstractTreeNode>();
-      final Set<PsiPackage> topLevelPackages = new HashSet<PsiPackage>();
+   /*   final Set<PsiPackage> topLevelPackages = new HashSet<PsiPackage>();
 
       for (final VirtualFile root : sourceRoots) {
         final PsiDirectory directory = psiManager.findDirectory(root);
@@ -93,23 +92,22 @@ public class PackageViewProjectNode extends AbstractProjectNode {
 
       if (getSettings().isShowLibraryContents()) {
         children.add(new PackageViewLibrariesNode(getProject(), null, getSettings()));
-      }
+      }     */
 
       return children;
     }
   }
 
   @Override
-  protected AbstractTreeNode createModuleGroup(final Module module) throws
-                                                                    InvocationTargetException,
-                                                                    NoSuchMethodException, InstantiationException, IllegalAccessException {
+  protected AbstractTreeNode createModuleGroup(final Module module)
+    throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
     return createTreeNode(PackageViewModuleNode.class, getProject(), module, getSettings());
   }
 
   @Override
   protected AbstractTreeNode createModuleGroupNode(final ModuleGroup moduleGroup)
     throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-    return createTreeNode(PackageViewModuleGroupNode.class, getProject(),  moduleGroup, getSettings());
+    return createTreeNode(PackageViewModuleGroupNode.class, getProject(), moduleGroup, getSettings());
   }
 
   @Override

@@ -66,7 +66,7 @@ public class ProjectViewProjectNode extends AbstractProjectNode {
     }
     */
 
-    nodes.addAll(modulesAndGroups(modules.toArray(new Module[modules.size()])));
+    nodes.addAll(modulesAndGroups(modules));
 
     final VirtualFile baseDir = getProject().getBaseDir();
     if (baseDir == null) return nodes;

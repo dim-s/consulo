@@ -28,8 +28,8 @@ import com.intellij.ide.SelectInTarget;
 import com.intellij.ide.impl.PackagesPaneSelectInTarget;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.projectView.ViewSettings;
-import com.intellij.ide.projectView.impl.nodes.PackageNodeUtil;
 import com.intellij.ide.projectView.impl.nodes.PackageElement;
+import com.intellij.ide.projectView.impl.nodes.PackageNodeUtil;
 import com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode;
 import com.intellij.ide.util.DeleteHandler;
 import com.intellij.ide.util.treeView.AbstractTreeBuilder;
@@ -42,11 +42,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.util.NotNullLazyValue;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiUtilCore;
+import com.intellij.util.Function;
 import org.consulo.psi.PsiPackage;
 import org.consulo.psi.PsiPackageManager;
 import org.jetbrains.annotations.NonNls;
@@ -61,6 +64,18 @@ import java.util.*;
 public final class PackageViewPane extends AbstractProjectViewPSIPane {
   @NonNls public static final String ID = "PackagesPane";
   private final MyDeletePSIElementProvider myDeletePSIElementProvider = new MyDeletePSIElementProvider();
+  private NotNullLazyValue<String> myTitleValue = new NotNullLazyValue<String>() {
+    @NotNull
+    @Override
+    protected String compute() {
+      return StringUtil.join(PackageViewHelper.EP_NAME.getExtensions(myProject), new Function<PackageViewHelper, String>() {
+        @Override
+        public String fun(PackageViewHelper packageViewHelper) {
+          return packageViewHelper.getPresentationName();
+        }
+      }, " / ");
+    }
+  };
 
   public PackageViewPane(Project project) {
     super(project);
@@ -68,7 +83,7 @@ public final class PackageViewPane extends AbstractProjectViewPSIPane {
 
   @Override
   public String getTitle() {
-    return IdeBundle.message("title.packages");
+    return myTitleValue.getValue();
   }
 
   @Override

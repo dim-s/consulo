@@ -15,6 +15,7 @@
  */
 package com.intellij.ide.projectView.impl.nodes;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.ViewSettings;
@@ -27,21 +28,23 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.PlatformIcons;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractProjectNode extends ProjectViewNode<Project> {
   protected AbstractProjectNode(Project project, Project value, ViewSettings viewSettings) {
     super(project, value, viewSettings);
   }
 
-  protected Collection<AbstractTreeNode> modulesAndGroups(Module[] modules) {
+  protected Collection<AbstractTreeNode> modulesAndGroups(Collection<Module> modules) {
     Map<String, List<Module>> groups = new THashMap<String, List<Module>>();
-    List<Module> nonGroupedModules = new ArrayList<Module>(Arrays.asList(modules));
+    List<Module> nonGroupedModules = new ArrayList<Module>(modules);
     for (final Module module : modules) {
       final String[] path = ModuleManager.getInstance(getProject()).getModuleGroupPath(module);
       if (path != null) {
@@ -79,7 +82,7 @@ public abstract class AbstractProjectNode extends ProjectViewNode<Project> {
 
   @Override
   public void update(PresentationData presentation) {
-    presentation.setIcon(PlatformIcons.PROJECT_ICON);
+    presentation.setIcon(AllIcons.Icon16);
     presentation.setPresentableText(getProject().getName());
   }
 
