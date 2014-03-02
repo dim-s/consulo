@@ -52,6 +52,7 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.Processor;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.ButtonlessScrollBarUI;
+import com.intellij.util.ui.ButtonlessScrollBarUIWrapper;
 import com.intellij.util.ui.UIUtil;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
@@ -251,10 +252,10 @@ public class EditorMarkupModelImpl extends MarkupModelImpl implements EditorMark
   @Override
   public void setErrorStripeVisible(boolean val) {
     if (val) {
-      myEditor.getVerticalScrollBar().setPersistentUI(new MyErrorPanel());
+      myEditor.getVerticalScrollBar().setPersistentUI(new MyErrorPanel(myEditor.getVerticalScrollBar()));
     }
     else {
-      myEditor.getVerticalScrollBar().setPersistentUI(ButtonlessScrollBarUI.createNormal());
+      myEditor.getVerticalScrollBar().setPersistentUI(ButtonlessScrollBarUI.createUIImpl(myEditor.getVerticalScrollBar()));
     }
   }
 
@@ -388,37 +389,43 @@ public class EditorMarkupModelImpl extends MarkupModelImpl implements EditorMark
     }
   }
 
-  private class MyErrorPanel extends ButtonlessScrollBarUI implements MouseMotionListener, MouseListener {
+  private class MyErrorPanel extends ButtonlessScrollBarUIWrapper implements MouseMotionListener, MouseListener {
+    private final JScrollBar myComponent;
     private PopupHandler myHandler;
     private JButton myErrorStripeButton;
     private BufferedImage myCachedTrack;
 
+    public MyErrorPanel(JScrollBar component) {
+      super(component);
+      myComponent = component;
+    }
+
     @Override
-    protected JButton createDecreaseButton(int orientation) {
+    public JButton createDecreaseButton(int orientation) {
       myErrorStripeButton = myErrorStripeRenderer == null ? super.createDecreaseButton(orientation) : new ErrorStripeButton();
       return myErrorStripeButton;
     }
 
     @Override
-    protected void installListeners() {
+    public void installListeners() {
       super.installListeners();
-      scrollbar.addMouseMotionListener(this);
-      scrollbar.addMouseListener(this);
+      myComponent.addMouseMotionListener(this);
+      myComponent.addMouseListener(this);
       myErrorStripeButton.addMouseMotionListener(this);
       myErrorStripeButton.addMouseListener(this);
     }
 
     @Override
-    protected void uninstallListeners() {
-      scrollbar.removeMouseMotionListener(this);
-      scrollbar.removeMouseListener(this);
+    public void uninstallListeners() {
+      myComponent.removeMouseMotionListener(this);
+      myComponent.removeMouseListener(this);
       myErrorStripeButton.removeMouseMotionListener(this);
       myErrorStripeButton.removeMouseListener(this);
       super.uninstallListeners();
     }
 
     @Override
-    protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+    public void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
       if (UISettings.getInstance().PRESENTATION_MODE) {
         super.paintThumb(g, c, thumbBounds);
         return;
@@ -430,19 +437,19 @@ public class EditorMarkupModelImpl extends MarkupModelImpl implements EditorMark
     }
 
     @Override
-    protected int adjustThumbWidth(int width) {
+    public int adjustThumbWidth(int width) {
       if (UISettings.getInstance().PRESENTATION_MODE) return super.adjustThumbWidth(width);
       return width - 2;
     }
 
     @Override
-    protected int getThickness() {
+    public int getThickness() {
       if (UISettings.getInstance().PRESENTATION_MODE) return super.getThickness();
       return super.getThickness() + 7;
     }
 
     @Override
-    protected void paintTrack(Graphics g, JComponent c, Rectangle bounds) {
+    public void paintTrack(Graphics g, JComponent c, Rectangle bounds) {
       if (UISettings.getInstance().PRESENTATION_MODE) {
         g.setColor(getEditor().getColorsScheme().getDefaultBackground());
         g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
@@ -494,7 +501,7 @@ public class EditorMarkupModelImpl extends MarkupModelImpl implements EditorMark
     }
 
     @Override
-    protected Color adjustColor(Color c) {
+    public Color adjustColor(Color c) {
       if (UIUtil.isUnderDarcula()) {
         return c;
       }
@@ -677,7 +684,7 @@ public class EditorMarkupModelImpl extends MarkupModelImpl implements EditorMark
     }
 
     private int getWidth() {
-      return scrollbar.getWidth();
+      return myComponent.getWidth();
     }
 
     private void doMouseClicked(MouseEvent e) {
@@ -704,14 +711,14 @@ public class EditorMarkupModelImpl extends MarkupModelImpl implements EditorMark
       }
 
       if (showToolTipByMouseMove(e, getWidth())) {
-        scrollbar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        myComponent.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return;
       }
 
       cancelMyToolTips(e, false);
 
-      if (scrollbar.getCursor().equals(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))) {
-        scrollbar.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      if (myComponent.getCursor().equals(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))) {
+        myComponent.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       }
     }
 
@@ -759,12 +766,12 @@ public class EditorMarkupModelImpl extends MarkupModelImpl implements EditorMark
 
     private void setPopupHandler(@NotNull PopupHandler handler) {
       if (myHandler != null) {
-        scrollbar.removeMouseListener(myHandler);
+        myComponent.removeMouseListener(myHandler);
         myErrorStripeButton.removeMouseListener(myHandler);
       }
 
       myHandler = handler;
-      scrollbar.addMouseListener(handler);
+      myComponent.addMouseListener(handler);
       myErrorStripeButton.addMouseListener(myHandler);
     }
   }

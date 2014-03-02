@@ -56,9 +56,9 @@ import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.*;
 import com.intellij.openapi.vcs.VcsConfiguration;
 import com.intellij.ui.awt.RelativePoint;
+import com.intellij.ui.components.JBScrollBar;
 import com.intellij.util.BeforeAfter;
 import com.intellij.util.PlatformIcons;
-import com.intellij.util.ui.ButtonlessScrollBarUI;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -433,8 +433,7 @@ public class ChangesFragmentedDiffPanel implements Disposable {
     private int myIdxRight;
 
     private MyScrollingHelper() {
-      myLeftScroll = new JScrollBar(JScrollBar.HORIZONTAL);
-      myLeftScroll.setUI(ButtonlessScrollBarUI.createNormal());
+      myLeftScroll = new JBScrollBar(JScrollBar.HORIZONTAL);
 
       myLeftEditors = new ArrayList<Editor>();
       myRightEditors = new ArrayList<Editor>();

@@ -70,7 +70,7 @@ import com.intellij.util.containers.ConcurrentWeakHashMap;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.AbstractLayoutManager;
 import com.intellij.util.ui.AsyncProcessIcon;
-import com.intellij.util.ui.ButtonlessScrollBarUI;
+import com.intellij.util.ui.ButtonlessScrollBarUIWrapper;
 import com.intellij.util.ui.update.Activatable;
 import com.intellij.util.ui.update.UiNotifyConnector;
 import org.jetbrains.annotations.NotNull;
@@ -189,9 +189,9 @@ public class LookupImpl extends LightweightHint implements LookupEx, Disposable 
     myScrollPane.setViewportBorder(new EmptyBorder(0, 0, 0, 0));
     myScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     myScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(13, -1));
-    myScrollPane.getVerticalScrollBar().setUI(new ButtonlessScrollBarUI() {
+    myScrollPane.getVerticalScrollBar().setUI(new ButtonlessScrollBarUIWrapper(myScrollPane.getVerticalScrollBar()) {
       @Override
-      protected JButton createIncreaseButton(int orientation) {
+      public JButton createIncreaseButton(int orientation) {
         return myScrollBarIncreaseButton;
       }
     });
